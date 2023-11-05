@@ -1,0 +1,7 @@
+node_modules/
+
+# Image
+*.png
+*.jpg
+*.gif
+*.svg
