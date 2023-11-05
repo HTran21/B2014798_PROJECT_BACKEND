@@ -6,5 +6,6 @@ router.post("/", authenticationController.createUser);
 router.post("/login", authenticationController.login);
 router.put("/edit", authenticationController.editProfile);
 router.get("/logout", authenticationController.logout);
+router.get("/info", authenticationController.inforUser);
 
 module.exports = router;
