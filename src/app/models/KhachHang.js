@@ -6,6 +6,7 @@ const KhachHang = new Schema({
     Password: { type: String, maxLength: 255 },
     DiaChi: { type: String, maxLength: 255 },
     SoDienThoai: { type: String, maxLength: 255 },
+    AnhDaiDien: { type: String, maxLength: 255 },
 })
 
 module.exports = mongoose.model('KhachHang', KhachHang);
