@@ -51,7 +51,7 @@ class Authentication {
                 }
                 catch (error) {
                     console.log('Lỗi khi đăng ký người dùng', error);
-                    res.status(500).json({ message: 'Lôi khi đăng ký người dùng' })
+                    res.status(500).json({ message: 'Lỗi khi đăng ký người dùng' })
                 }
 
 
