@@ -75,7 +75,7 @@ class Authentication {
             }
             else {
                 try {
-                    const HoTenKH = req.body.username;
+                    const HoTenNV = req.body.username;
                     const Password = req.body.password;
                     const SoDienThoai = req.body.phone;
                     const ChucVu = req.body.position;
@@ -87,7 +87,7 @@ class Authentication {
 
 
 
-                    const existingUser = await KhachHang.findOne({ SoDienThoai });
+                    const existingUser = await NhanVien.findOne({ SoDienThoai });
 
                     if (existingUser) {
                         // return res.status(400).json({ error: "Người dùng đã tồn tại" })
@@ -96,7 +96,7 @@ class Authentication {
                     else {
 
                         const newNhanVien = new NhanVien({
-                            HoTenKH,
+                            HoTenNV,
                             Password: hashedPassword,
                             DiaChi,
                             SoDienThoai,

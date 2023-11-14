@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const NhanVien = new Schema({
-    HoTenKH: { type: String, maxLength: 255 },
+    HoTenNV: { type: String, maxLength: 255 },
     Password: { type: String, maxLength: 255 },
     DiaChi: { type: String, maxLength: 255 },
     SoDienThoai: { type: String, maxLength: 255 },

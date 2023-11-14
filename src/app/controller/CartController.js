@@ -1,4 +1,5 @@
 const GioHang = require('../models/GioHang');
+const HangHoa = require('../models/HangHoa');
 class CartController {
 
     async addToCart(req, res, next) {
@@ -10,6 +11,21 @@ class CartController {
             // console.log("Noi dung id item", req.body.idDrink._value)
             // console.log("Noi dung so luong", req.body.numberCup._value);
             // console.log("Noi dung Size", req.body.sizeCup._value);
+
+
+            // const hangHoa = await HangHoa.findById(MSHH);
+
+            // if (!hangHoa) {
+            //     return res.json({ error: 'Không tìm thấy sản phẩm' });
+            // }
+
+            // if (SoLuong > hangHoa.SoLuongHang) {
+            //     return res.json({ error: 'Số lượng hàng không đủ' });
+            // }
+
+            // hangHoa.SoLuongHang -= SoLuong;
+            // await hangHoa.save();
+
             const existingCart = await GioHang.find({
                 MSHH: MSHH,
                 MSKH: MSKH,
@@ -178,6 +194,12 @@ class CartController {
 
                 if (existingCart) {
                     const SoLuong = req.body.numberCup._value;
+                    // const MSHH = req.body.idDrink._value;
+                    // const hangHoa = await HangHoa.findById(MSHH);
+
+                    // hangHoa.SoLuongHang -= SoLuong;
+                    // await hangHoa.save();
+
                     existingCart.SoLuong = SoLuong;
                     await existingCart.save();
                     return res.send({ message: "Thức uống đã được cập nhật", data: existingCart })
