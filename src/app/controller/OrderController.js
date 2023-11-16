@@ -1,5 +1,5 @@
 const DonHang = require('../models/DonHang');
-const ChiTietDonHang = require('../models/ChiTietDatHang');
+// const ChiTietDonHang = require('../models/ChiTietDatHang');
 const GioHang = require('../models/GioHang');
 const HangHoa = require('../models/HangHoa');
 const ChiTietDatHang = require('../models/ChiTietDatHang');
@@ -24,7 +24,7 @@ class OrderController {
                 else {
                     hangHoa.SoLuongHang -= chiTiet.SoLuong;
                     await hangHoa.save();
-                    await ChiTietDonHang.create({
+                    await ChiTietDatHang.create({
                         MSHH: chiTiet.MSHH,
                         SoLuong: chiTiet.SoLuong,
                         Size: chiTiet.Size,
@@ -92,13 +92,43 @@ class OrderController {
             }
 
             // Cập nhật trạng thái của đơn hàng thành 'D'
-            order.TrangthaiDH = 'D';
-            await order.save();
+            else {
+                const ChiTiets = await ChiTietDatHang.find({ SoDonDH: idOrder });
+                for (const chitiet of ChiTiets) {
+                    // console.log("ID Hang hoa", chitiet.MSHH);
+                    const hangHoa = await HangHoa.findById(chitiet.MSHH);
+                    // console.log("Hang hoa", hangHoa)
+                    if (!hangHoa) {
+                        return res.json({ error: 'Không tìm thấy sản phẩm' });
+                    }
+                    else {
+                        hangHoa.SoLuongHang += chitiet.SoLuong;
+                        await hangHoa.save();
+                        // console.log("Hang hoa", hangHoa);
 
-            res.json({ message: 'Đã xóa đơn hàng thành công' });
+                    }
+                }
+                order.TrangthaiDH = 'D';
+                await order.save();
+
+                res.json({ message: 'Đã xóa đơn hàng thành công' });
+            }
         } catch (error) {
             console.error('Lỗi khi xóa đơn hàng:', error);
             res.json({ error: 'Lỗi khi xóa đơn hàng' });
+        }
+    }
+
+    listOrderAdmin(req, res, next) {
+        try {
+            DonHang.find({ TrangthaiDH: 'W' }).populate("MSKH")
+                .then(donhangs => {
+                    return res.send(donhangs);
+                })
+                .catch((err) => console.log(err))
+        } catch (error) {
+            console.error('Lỗi khi nhận danh sách đặt hàng:', error);
+            res.json({ error: 'Lỗi khi nhận danh sách đặt hàng' });
         }
     }
 }

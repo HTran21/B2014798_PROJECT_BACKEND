@@ -27,7 +27,7 @@ class Authentication {
 
                     const AnhDaiDien = req.file.originalname;
 
-                    const existingUser = await NhanVien.findOne({ SoDienThoai });
+                    const existingUser = await KhachHang.findOne({ SoDienThoai });
 
                     if (existingUser) {
                         // return res.status(400).json({ error: "Người dùng đã tồn tại" })
@@ -35,7 +35,7 @@ class Authentication {
                     }
                     else {
 
-                        const newKhachHang = new NhanVien({
+                        const newKhachHang = new KhachHang({
                             HoTenKH,
                             Password: hashedPassword,
                             DiaChi,
