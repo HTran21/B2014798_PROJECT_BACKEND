@@ -12,7 +12,7 @@ class OrderController {
             // console.log("Chi tiet don hang", ChiTietGioHang);
             // console.log("Tong tien", TongTien._value);
             // Tao don hang
-            const donHang = await DonHang.create({ MSKH, TrangthaiDH });
+            const donHang = (await DonHang.create({ MSKH, TrangthaiDH }))
 
             // Tao chi tiet don hang
             for (const chiTiet of ChiTietGioHang) {
@@ -119,7 +119,7 @@ class OrderController {
         }
     }
 
-    listOrderAdmin(req, res, next) {
+    async listOrderAdmin(req, res, next) {
         try {
             DonHang.find({ TrangthaiDH: 'W' }).populate("MSKH")
                 .then(donhangs => {
@@ -129,6 +129,84 @@ class OrderController {
         } catch (error) {
             console.error('Lỗi khi nhận danh sách đặt hàng:', error);
             res.json({ error: 'Lỗi khi nhận danh sách đặt hàng' });
+        }
+    }
+
+    async updateOrderAdmin(req, res, next) {
+        try {
+            const idOder = req.body.idOrder._value;
+            const NgayGH = req.body.NgayGH._value;
+            const idStaff = req.body.idStaff._value
+            const TrangthaiDH = 'Y';
+            const order = await DonHang.findById(idOder);
+
+            if (!order) {
+                res.json({ error: "Không tìm thấy đơn hàng" });
+            }
+            order.NgayGH = NgayGH;
+            order.TrangthaiDH = TrangthaiDH;
+            order.MSNV = idStaff;
+            await order.save();
+            res.json({ message: "Duyệt đơn hàng thành công" });
+        }
+        catch (error) {
+            console.error('Lỗi khi duyệt danh sách đặt hàng:', error);
+            res.json({ error: 'Lỗi khi duyệt danh sách đặt hàng' });
+        }
+    }
+
+    async deniedOrderAdmin(req, res, next) {
+        try {
+            const idOrder = req.params.id;
+            const order = await DonHang.findById(idOrder);
+
+            if (!order) {
+                return res.json({ error: 'Không tìm thấy đơn hàng' });
+            }
+            else {
+                const ChiTiets = await ChiTietDatHang.find({ SoDonDH: idOrder });
+                for (const chitiet of ChiTiets) {
+                    // console.log("ID Hang hoa", chitiet.MSHH);
+                    const hangHoa = await HangHoa.findById(chitiet.MSHH);
+                    // console.log("Hang hoa", hangHoa)
+                    if (!hangHoa) {
+                        return res.json({ error: 'Không tìm thấy sản phẩm' });
+                    }
+                    else {
+                        hangHoa.SoLuongHang += chitiet.SoLuong;
+                        await hangHoa.save();
+                        // console.log("Hang hoa", hangHoa);
+
+                    }
+                }
+                order.TrangthaiDH = 'D';
+                await order.save();
+
+                res.json({ message: 'Đã xóa đơn hàng thành công' });
+            }
+        } catch (error) {
+            console.error('Lỗi khi xóa đơn hàng:', error);
+            res.json({ error: 'Lỗi khi xóa đơn hàng' });
+        }
+    }
+
+
+    async listOrderAccessAdmin(req, res, next) {
+        try {
+            const CustomerOrder = await DonHang.find({ TrangthaiDH: 'Y' }).populate("MSKH");;
+
+            const result = CustomerOrder.map(async (item) => {
+                let detail = await ChiTietDatHang.find({ SoDonDH: item._id }).populate("MSHH")
+                return {
+                    ...item,
+                    ChiTietDatHang: detail,
+                }
+            })
+            const data = await Promise.all(result);
+            return res.send(data);
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách đơn hàng:', error);
+            res.status(500).json({ error: 'Lỗi khi lấy danh sách đơn hàng' });
         }
     }
 }

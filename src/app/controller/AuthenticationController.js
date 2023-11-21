@@ -1,6 +1,5 @@
 const KhachHang = require('../models/KhachHang');
 const NhanVien = require('../models/NhanVien')
-const { multipleMongoseToObject } = require('../utils/mongose');
 const userServices = require('../../services/userService');
 const multer = require('multer');
 const storage = require('../../services/uploadImage');
@@ -169,20 +168,28 @@ class Authentication {
         }
     }
 
-    editProfile(req, res, next) {
-        return res.send("Chinh sua thong tin nguoi dung")
-    }
 
     logout(req, res, next) {
         return res.send("Dang xuat")
     }
 
 
+    // inforUser(req, res, next) {
+    //     // const id = req.params.id;
+    //     KhachHang.find()
+    //         // .then(khachhang => res.send({ khachhang: multipleMongoseToObject(khachhang) })
+    //         // )
+    //         .then(khachhang => res.send(khachhang)
+    //         )
+
+    //         .catch((err) => {
+    //             console.error('Lỗi khi tìm kiếm khách hàng:', err);
+    //         });
+    // }
+
     inforUser(req, res, next) {
-        // const id = req.params.id;
-        KhachHang.find()
-            // .then(khachhang => res.send({ khachhang: multipleMongoseToObject(khachhang) })
-            // )
+        const id = req.params.id;
+        KhachHang.findById(id)
             .then(khachhang => res.send(khachhang)
             )
 
@@ -190,6 +197,128 @@ class Authentication {
                 console.error('Lỗi khi tìm kiếm khách hàng:', err);
             });
     }
+    editProfile(req, res, next) {
+        const upload = multer({ storage: storage }).single("image");
+
+        upload(req, res, async function (err) {
+            if (err instanceof multer.MulterError) {
+                return res.status(400).json({ error: 'Lỗi tải lên tệp' });
+            }
+            else if (err) {
+                return res.status(500).json({ error: 'Lỗi tải lên tệp' });
+            }
+            else {
+                try {
+
+                    const id = req.params.id;
+                    const existingProduct = await KhachHang.findById(id);
+                    if (existingProduct) {
+                        const HoTenKH = req.body.name;
+                        const SoDienThoai = req.body.phone;
+                        const DiaChi = req.body.address;
+                        if (req.file) {
+                            const AnhDaiDien = req.file.originalname;
+                            existingProduct.HoTenKH = HoTenKH;
+                            existingProduct.SoDienThoai = SoDienThoai;
+                            existingProduct.DiaChi = DiaChi;
+                            existingProduct.AnhDaiDien = AnhDaiDien;
+                            await existingProduct.save();
+                            return res.json({ message: "Thông tin đã được cập nhật" })
+                        }
+                        else {
+                            existingProduct.HoTenKH = HoTenKH;
+                            existingProduct.SoDienThoai = SoDienThoai;
+                            existingProduct.DiaChi = DiaChi;
+                            await existingProduct.save();
+                            return res.json({ message: "Thông tin đã được cập nhật" })
+                        }
+                    }
+                    else {
+                        return res.send({ error: "Cập nhật thất bại" })
+
+                    }
+
+                }
+                catch (error) {
+                    console.log('Lỗi khi cập nhật thức uống', error);
+                    res.status(500).json({ message: 'Lỗi khi cập nhật thức uống' })
+                }
+
+
+            }
+        })
+    }
+
+    inforStaff(req, res, next) {
+        const id = req.params.id;
+        NhanVien.findById(id)
+            .then(nhanvien => res.send(nhanvien)
+            )
+
+            .catch((err) => {
+                console.error('Lỗi khi tìm kiếm khách hàng:', err);
+            });
+    }
+
+    editProfileStaff(req, res, next) {
+        const upload = multer({ storage: storage }).single("image");
+
+        upload(req, res, async function (err) {
+            if (err instanceof multer.MulterError) {
+                return res.status(400).json({ error: 'Lỗi tải lên tệp' });
+            }
+            else if (err) {
+                return res.status(500).json({ error: 'Lỗi tải lên tệp' });
+            }
+            else {
+                try {
+
+                    const id = req.params.id;
+                    const existingProduct = await NhanVien.findById(id);
+                    if (existingProduct) {
+                        const HoTenNV = req.body.name;
+                        const SoDienThoai = req.body.phone;
+                        const DiaChi = req.body.address;
+                        const ChucVu = req.body.chucvu;
+                        if (req.file) {
+                            const AnhDaiDien = req.file.originalname;
+                            existingProduct.HoTenNV = HoTenNV;
+                            existingProduct.SoDienThoai = SoDienThoai;
+                            existingProduct.ChucVu = ChucVu;
+                            existingProduct.DiaChi = DiaChi;
+                            existingProduct.AnhDaiDien = AnhDaiDien;
+                            await existingProduct.save();
+                            return res.json({ message: "Thông tin đã được cập nhật" })
+                        }
+                        else {
+                            existingProduct.HoTenNV = HoTenNV;
+                            existingProduct.SoDienThoai = SoDienThoai;
+                            existingProduct.ChucVu = ChucVu;
+                            existingProduct.DiaChi = DiaChi;
+                            await existingProduct.save();
+                            return res.json({ message: "Thông tin đã được cập nhật" })
+                        }
+                    }
+                    else {
+                        return res.send({ error: "Cập nhật thất bại" })
+
+                    }
+
+                }
+                catch (error) {
+                    console.log('Lỗi khi cập nhật thức uống', error);
+                    res.status(500).json({ message: 'Lỗi khi cập nhật thức uống' })
+                }
+
+
+            }
+        })
+    }
+
+    async dashboard(req, res, next) {
+
+    }
+
 }
 
 module.exports = new Authentication;

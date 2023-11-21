@@ -4,12 +4,27 @@ const storage = require('../../services/uploadImage');
 
 class ProductController {
 
-    listProduct(req, res, next) {
-        HangHoa.find({})
-            .then(hanghoas => {
-                return res.send(hanghoas);
-            })
-            .catch((err) => console.log(err))
+    async listProduct(req, res, next) {
+        const searchQuery = req.query.search;
+
+        if (searchQuery) {
+
+            const drinks = await HangHoa.find({ TenHH: { $regex: searchQuery, $options: 'i' } });
+            if (drinks.length > 0) {
+                res.json(drinks);
+            } else {
+                res.json({ message: 'Không tìm thấy đồ uống' });
+            }
+        }
+        else {
+            HangHoa.find()
+                .then(hanghoas => {
+                    return res.send(hanghoas);
+                })
+                .catch((err) => console.log(err))
+        }
+
+
     }
 
     async addProduct(req, res, next) {
